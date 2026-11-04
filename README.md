@@ -1,42 +1,114 @@
 # SmartBiz — Do‘kon boshqaruv tizimi
 
-SmartBiz — do‘kon faoliyatini boshqarish uchun yaratilgan CRM tizimi.
+SmartBiz — do‘kon mahsulotlari, buyurtmalari va savdo statistikasini boshqarish uchun yaratilgan Fullstack CRM tizimi.
 
-## 🚀 Loyihaning imkoniyatlari
+## Texnologiyalar
 
-- Dashboard — umumiy ma’lumotlar
-- Mahsulotlar — mahsulot qo‘shish, qidirish, tahrirlash va o‘chirish
-- Buyurtmalar — buyurtmalarni boshqarish
-- Statistika — savdo va buyurtmalar tahlili
-- LocalStorage — mahsulotlarni brauzerda saqlash
+### Backend
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- Winston va Morgan
+- Swagger
+- Docker va Docker Compose
 
-## 🛠 Texnologiyalar
-
-- HTML5
-- CSS3
+### Frontend
+- HTML
+- CSS
 - JavaScript
-- LocalStorage
-- Git va GitHub
 
-## 📁 Loyiha tuzilishi
+## Loyiha tuzilishi
 
 ```text
-SmartBiz/
-├── index.html
+SMARTBIZ/
+├── backend/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── server.js
 ├── css/
 │   └── style.css
-└── js/
-    ├── app.js
-    ├── dashboard.js
-    ├── products.js
-    ├── orders.js
-    └── statistics.js
+├── js/
+│   ├── app.js
+│   ├── dashboard.js
+│   ├── products.js
+│   ├── orders.js
+│   └── statistics.js
+├── index.html
+└── README.md
 ```
 
-## ▶️ Ishga tushirish
+## Asosiy imkoniyatlar
 
-`index.html` faylini brauzerda oching.
+- Mahsulotlarni qo‘shish va ko‘rish
+- Mahsulotlarni qidirish va filtrlash
+- Sahifalash va saralash
+- Buyurtmalar yaratish
+- Buyurtma holatini boshqarish
+- Ombordagi mahsulot miqdorini nazorat qilish
+- Savdo statistikasini ko‘rish
 
-## 👨‍💻 Muallif
+## API endpointlar
 
-SmartBiz loyihasi — o‘quv fullstack CRM loyihasi.
+| Method | Endpoint | Vazifasi |
+|---|---|---|
+| GET | `/products` | Mahsulotlar ro‘yxati |
+| POST | `/products` | Mahsulot qo‘shish |
+| GET | `/orders` | Buyurtmalar ro‘yxati |
+| POST | `/orders` | Buyurtma yaratish |
+| PATCH | `/orders/:id/status` | Buyurtma holatini o‘zgartirish |
+| GET | `/statistics` | Statistika olish |
+
+## Loyihani ishga tushirish
+
+1. Repozitoriyani yuklab oling.
+2. `backend` papkasiga kiring.
+3. Kerakli paketlarni o‘rnating:
+
+```bash
+npm install
+```
+
+4. `backend/.env` faylini yarating va MongoDB ulanish manzilini kiriting:
+
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+```
+
+5. Backendni ishga tushiring:
+
+```bash
+npm start
+```
+
+## Docker orqali ishga tushirish
+
+`backend` papkasida quyidagi buyruqni bajaring:
+
+```bash
+docker compose up --build -d
+```
+
+To‘xtatish:
+
+```bash
+docker compose down
+```
+
+## Swagger API hujjatlari
+
+Backend ishga tushgach, quyidagi manzil orqali API hujjatlarini ko‘rish mumkin:
+
+http://localhost:5000/api-docs/
+
+## Muallif
+
+SmartBiz loyihasi o‘quv loyihasi sifatida ishlab chiqilgan.
