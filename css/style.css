@@ -8,6 +8,7 @@ body {
     font-family: Arial, sans-serif;
     background: #0f172a;
     color: #f1f5f9;
+    min-height: 100vh;
 }
 
 .sidebar {
@@ -18,11 +19,14 @@ body {
     height: 100vh;
     background: #111827;
     padding: 30px 20px;
+    border-right: 1px solid #1e293b;
+    z-index: 100;
 }
 
 .logo {
     font-size: 27px;
     margin-bottom: 45px;
+    color: #f8fafc;
 }
 
 .logo span {
@@ -36,6 +40,7 @@ body {
     padding: 15px;
     margin-bottom: 10px;
     border-radius: 9px;
+    transition: 0.25s;
 }
 
 .sidebar nav a:hover,
@@ -47,6 +52,7 @@ body {
 .main {
     margin-left: 250px;
     padding: 30px;
+    min-height: 100vh;
 }
 
 .topbar {
@@ -54,6 +60,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 35px;
+    gap: 15px;
 }
 
 .topbar h1 {
@@ -79,11 +86,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-weight: bold;
 }
 
 .stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 20px;
 }
 
@@ -92,6 +100,12 @@ body {
     padding: 25px;
     border-radius: 12px;
     border: 1px solid #334155;
+    transition: 0.25s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    border-color: #38bdf8;
 }
 
 .stat-card p {
@@ -102,6 +116,7 @@ body {
 .stat-card h2 {
     font-size: 27px;
     color: #38bdf8;
+    overflow-wrap: anywhere;
 }
 
 .content-box {
@@ -110,6 +125,11 @@ body {
     padding: 25px;
     border-radius: 12px;
     margin-top: 25px;
+    border: 1px solid #334155;
+}
+
+.content-box h2 {
+    margin-bottom: 15px;
 }
 
 .content-box p {
@@ -122,6 +142,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 25px;
+    gap: 15px;
 }
 
 .products-header p {
@@ -136,6 +157,13 @@ body {
     padding: 13px 20px;
     border-radius: 8px;
     cursor: pointer;
+    transition: 0.25s;
+    font-weight: 600;
+}
+
+.add-btn:hover {
+    background: #0369a1;
+    transform: translateY(-2px);
 }
 
 .search {
@@ -147,6 +175,11 @@ body {
     border-radius: 9px;
     margin-bottom: 20px;
     font-size: 15px;
+    outline: none;
+}
+
+.search:focus {
+    border-color: #38bdf8;
 }
 
 .table-box {
@@ -155,12 +188,14 @@ body {
     padding: 25px;
     border-radius: 12px;
     overflow-x: auto;
+    border: 1px solid #334155;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
+    min-width: 650px;
 }
 
 th,
@@ -171,6 +206,15 @@ td {
 
 th {
     color: #94a3b8;
+    font-weight: 600;
+}
+
+td {
+    color: #e2e8f0;
+}
+
+tbody tr:hover {
+    background: #263449;
 }
 
 .in-stock,
@@ -178,6 +222,7 @@ th {
     padding: 6px 10px;
     border-radius: 20px;
     font-size: 12px;
+    display: inline-block;
 }
 
 .in-stock {
@@ -195,7 +240,7 @@ th {
     padding: 9px 12px;
     border-radius: 7px;
     cursor: pointer;
-    margin-right: 5px;
+    margin: 3px;
     font-size: 14px;
     transition: 0.2s;
 }
@@ -220,9 +265,153 @@ th {
     color: white;
 }
 
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    overflow-y: auto;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-box {
+    width: 100%;
+    max-width: 450px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: #1e293b;
+    padding: 30px;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    animation: modalShow 0.25s ease;
+}
+
+.modal-box h2 {
+    color: #f8fafc;
+    margin-bottom: 8px;
+}
+
+.modal-description {
+    color: #94a3b8;
+    margin-bottom: 22px;
+}
+
+.modal-box label {
+    display: block;
+    color: #cbd5e1;
+    margin: 14px 0 7px;
+}
+
+.modal-box input,
+.modal-box select {
+    width: 100%;
+    padding: 12px;
+    background: #0f172a;
+    color: white;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+}
+
+.modal-box input:focus,
+.modal-box select:focus {
+    border-color: #3b82f6;
+}
+
+.modal-box select option {
+    background: #1e293b;
+    color: white;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.modal-actions button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.cancel-btn {
+    background: #334155;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background: #475569;
+}
+
+.chart-track {
+    width: 100%;
+    height: 12px;
+    background: #334155;
+    border-radius: 20px;
+    overflow: hidden;
+    margin: 10px 0 22px;
+}
+
+.chart-bar {
+    height: 100%;
+    border-radius: 20px;
+    transition: width 0.4s ease;
+}
+
+.completed-bar {
+    background: #22c55e;
+}
+
+.pending-bar {
+    background: #f59e0b;
+}
+
+.category-bar {
+    background: #38bdf8;
+}
+
+.category-row {
+    margin-top: 18px;
+}
+
+.category-row p {
+    margin-bottom: 8px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes modalShow {
+    from {
+        opacity: 0;
+        transform: translateY(15px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 @media (max-width: 900px) {
     .stats {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -239,6 +428,7 @@ th {
     .sidebar nav a {
         font-size: 0;
         text-align: center;
+        padding: 15px 5px;
     }
 
     .main {
@@ -248,5 +438,35 @@ th {
 
     .topbar {
         gap: 10px;
+        align-items: flex-start;
+    }
+
+    .topbar h1 {
+        font-size: 22px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .products-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .products-header .add-btn {
+        width: 100%;
+    }
+
+    .table-box {
+        padding: 12px;
+    }
+
+    .modal-box {
+        padding: 20px;
+    }
+
+    .modal-actions {
+        flex-direction: column;
     }
 }

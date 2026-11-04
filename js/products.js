@@ -1,5 +1,3 @@
-
-// Mahsulotlarni localStorage'dan olish
 let products = JSON.parse(localStorage.getItem("smartbiz_products")) || [
     { id: 1, name: "iPhone 15", category: "Telefon", price: 12000000, quantity: 8 },
     { id: 2, name: "Samsung S24", category: "Telefon", price: 10500000, quantity: 5 },
@@ -7,7 +5,6 @@ let products = JSON.parse(localStorage.getItem("smartbiz_products")) || [
     { id: 4, name: "MacBook Air", category: "Noutbuk", price: 15000000, quantity: 3 }
 ];
 
-// O'zgarishlarni saqlash
 function saveProducts() {
     localStorage.setItem("smartbiz_products", JSON.stringify(products));
 }
@@ -73,7 +70,6 @@ function displayProducts(data) {
                     onclick="editProduct(${product.id})">
                     ✏️ Tahrirlash
                 </button>
-
                 <button class="action-btn delete-btn"
                     onclick="deleteProduct(${product.id})">
                     🗑️ O‘chirish
@@ -94,68 +90,169 @@ function searchProducts() {
 }
 
 function addProduct() {
-    const name = prompt("Mahsulot nomi:");
-    if (!name || !name.trim()) return;
+    const content = document.getElementById("page-content");
 
-    const price = Number(prompt("Mahsulot narxi:"));
-    if (!Number.isFinite(price) || price <= 0) {
-        return alert("Narx noto‘g‘ri!");
+    content.insertAdjacentHTML("beforeend", `
+        <div class="modal-overlay" id="product-modal">
+            <div class="modal-box">
+                <h2>Yangi mahsulot qo‘shish</h2>
+                <p class="modal-description">Mahsulot ma’lumotlarini kiriting</p>
+
+                <form onsubmit="saveNewProduct(event)">
+                    <label>Mahsulot nomi</label>
+                    <input type="text" id="new-product-name"
+                        placeholder="Masalan: iPhone 16" required>
+
+                    <label>Kategoriya</label>
+                    <select id="new-product-category" required>
+                        <option value="">Kategoriyani tanlang</option>
+                        <option value="Telefon">Telefon</option>
+                        <option value="Noutbuk">Noutbuk</option>
+                        <option value="Aksessuar">Aksessuar</option>
+                        <option value="Boshqa">Boshqa</option>
+                    </select>
+
+                    <label>Narxi (so‘m)</label>
+                    <input type="number" id="new-product-price"
+                        placeholder="Masalan: 12000000" min="1" required>
+
+                    <label>Mahsulot soni</label>
+                    <input type="number" id="new-product-quantity"
+                        placeholder="Masalan: 10" min="0" required>
+
+                    <div class="modal-actions">
+                        <button type="button" class="cancel-btn"
+                            onclick="closeProductModal()">Bekor qilish</button>
+                        <button type="submit" class="add-btn">Saqlash</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `);
+}
+
+function saveNewProduct(event) {
+    event.preventDefault();
+
+    const name = document.getElementById("new-product-name").value.trim();
+    const category = document.getElementById("new-product-category").value;
+    const price = Number(document.getElementById("new-product-price").value);
+    const quantity = Number(document.getElementById("new-product-quantity").value);
+
+    if (!name || !category || !Number.isFinite(price) || price <= 0 ||
+        !Number.isInteger(quantity) || quantity < 0) {
+        alert("Ma’lumotlarni to‘g‘ri kiriting!");
+        return;
     }
-
-    const quantity = Number(prompt("Mahsulot soni:"));
-    if (!Number.isInteger(quantity) || quantity < 0) {
-        return alert("Soni noto‘g‘ri!");
-    }
-
-    const category = prompt("Kategoriya:") || "Boshqa";
 
     products.push({
         id: Date.now(),
-        name: name.trim(),
-        category: category.trim(),
+        name,
+        category,
         price,
         quantity
     });
 
     saveProducts();
     renderProducts();
+
+    alert("Mahsulot muvaffaqiyatli qo‘shildi!");
+}
+
+function closeProductModal() {
+    document.getElementById("product-modal")?.remove();
 }
 
 function editProduct(id) {
     const product = products.find(item => item.id === id);
     if (!product) return;
 
-    const name = prompt("Yangi nom:", product.name);
-    if (!name || !name.trim()) return;
+    const content = document.getElementById("page-content");
 
-    const price = Number(prompt("Yangi narx:", product.price));
-    if (!Number.isFinite(price) || price <= 0) {
-        return alert("Narx noto‘g‘ri!");
+    content.insertAdjacentHTML("beforeend", `
+        <div class="modal-overlay" id="edit-product-modal">
+            <div class="modal-box">
+                <h2>Mahsulotni tahrirlash</h2>
+                <p class="modal-description">Ma’lumotlarni yangilang</p>
+
+                <form onsubmit="saveEditedProduct(event, ${product.id})">
+                    <label>Mahsulot nomi</label>
+                    <input type="text" id="edit-name"
+                        value="${product.name}" required>
+
+                    <label>Kategoriya</label>
+                    <select id="edit-category" required>
+                        ${["Telefon", "Noutbuk", "Aksessuar", "Boshqa"].map(category => `
+                            <option value="${category}"
+                                ${product.category === category ? "selected" : ""}>
+                                ${category}
+                            </option>
+                        `).join("")}
+                    </select>
+
+                    <label>Narxi (so‘m)</label>
+                    <input type="number" id="edit-price"
+                        value="${product.price}" min="1" required>
+
+                    <label>Mahsulot soni</label>
+                    <input type="number" id="edit-quantity"
+                        value="${product.quantity}" min="0" required>
+
+                    <div class="modal-actions">
+                        <button type="button" class="cancel-btn"
+                            onclick="closeEditProductModal()">
+                            Bekor qilish
+                        </button>
+                        <button type="submit" class="add-btn">
+                            Saqlash
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `);
+}
+
+function saveEditedProduct(event, id) {
+    event.preventDefault();
+
+    const product = products.find(item => item.id === id);
+    if (!product) return;
+
+    const name = document.getElementById("edit-name").value.trim();
+    const category = document.getElementById("edit-category").value;
+    const price = Number(document.getElementById("edit-price").value);
+    const quantity = Number(document.getElementById("edit-quantity").value);
+
+    if (!name || !category || !Number.isFinite(price) || price <= 0 ||
+        !Number.isInteger(quantity) || quantity < 0) {
+        alert("Ma’lumotlarni to‘g‘ri kiriting!");
+        return;
     }
 
-    const quantity = Number(prompt("Yangi soni:", product.quantity));
-    if (!Number.isInteger(quantity) || quantity < 0) {
-        return alert("Soni noto‘g‘ri!");
-    }
-
-    const category = prompt("Yangi kategoriya:", product.category);
-    if (category === null) return;
-
-    product.name = name.trim();
+    product.name = name;
+    product.category = category;
     product.price = price;
     product.quantity = quantity;
-    product.category = category.trim() || "Boshqa";
 
     saveProducts();
+    closeEditProductModal();
     renderProducts();
+
+    alert("Mahsulot muvaffaqiyatli tahrirlandi!");
+}
+
+function closeEditProductModal() {
+    document.getElementById("edit-product-modal")?.remove();
 }
 
 function deleteProduct(id) {
-    const confirmDelete = confirm("Bu mahsulotni o‘chirmoqchimisiz?");
-    if (!confirmDelete) return;
+    if (!confirm("Bu mahsulotni o‘chirmoqchimisiz?")) return;
 
     products = products.filter(product => product.id !== id);
 
     saveProducts();
     renderProducts();
+
+    alert("Mahsulot o‘chirildi!");
 }

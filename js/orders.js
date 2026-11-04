@@ -1,8 +1,9 @@
-let orders = [
+let orders = JSON.parse(localStorage.getItem("smartbiz_orders")) || [
     {
         id: 1,
         customer: "Ali",
         product: "iPhone 15",
+        productId: 1,
         quantity: 1,
         price: 12000000,
         status: "Kutilmoqda"
@@ -11,11 +12,16 @@ let orders = [
         id: 2,
         customer: "Vali",
         product: "Samsung S24",
+        productId: 2,
         quantity: 2,
         price: 10500000,
         status: "Bajarildi"
     }
 ];
+
+function saveOrders() {
+    localStorage.setItem("smartbiz_orders", JSON.stringify(orders));
+}
 
 function renderOrders() {
     const content = document.getElementById("page-content");
@@ -40,6 +46,7 @@ function renderOrders() {
                         <th>Soni</th>
                         <th>Umumiy narx</th>
                         <th>Holati</th>
+                        <th>Amallar</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,7 +56,19 @@ function renderOrders() {
                             <td>${order.product}</td>
                             <td>${order.quantity}</td>
                             <td>${(order.price * order.quantity).toLocaleString("uz-UZ")} so‘m</td>
-                            <td>${order.status}</td>
+                            <td>
+                                <span class="${order.status === "Bajarildi" ? "in-stock" : "low-stock"}">
+                                    ${order.status}
+                                </span>
+                            </td>
+                            <td>
+                                ${order.status === "Kutilmoqda" ? `
+                                    <button class="action-btn edit-btn"
+                                        onclick="changeOrderStatus(${order.id})">
+                                        Bajarildi
+                                    </button>
+                                ` : "Yakunlangan"}
+                            </td>
                         </tr>
                     `).join("")}
                 </tbody>
@@ -59,33 +78,126 @@ function renderOrders() {
 }
 
 function addOrder() {
-    const customer = prompt("Mijoz ismini kiriting:");
-    if (!customer) return;
+    if (!products || products.length === 0) {
+        alert("Avval mahsulot qo‘shing!");
+        return;
+    }
 
-    const product = prompt("Mahsulot nomini kiriting:");
-    if (!product) return;
+    const content = document.getElementById("page-content");
 
-    const quantity = Number(prompt("Mahsulot sonini kiriting:"));
+    const options = products.map(product => `
+        <option value="${product.id}" ${product.quantity < 1 ? "disabled" : ""}>
+            ${product.name} — ${product.price.toLocaleString("uz-UZ")} so‘m
+            (Omborda: ${product.quantity})
+        </option>
+    `).join("");
+
+    content.insertAdjacentHTML("beforeend", `
+        <div class="modal-overlay" id="order-modal">
+            <div class="modal-box">
+                <h2>Yangi buyurtma</h2>
+                <p class="modal-description">Buyurtma ma’lumotlarini kiriting</p>
+
+                <form onsubmit="saveNewOrder(event)">
+                    <label>Mijoz ismi</label>
+                    <input type="text" id="order-customer"
+                        placeholder="Mijoz ismini kiriting" required>
+
+                    <label>Mahsulot</label>
+                    <select id="order-product" required>
+                        <option value="">Mahsulotni tanlang</option>
+                        ${options}
+                    </select>
+
+                    <label>Mahsulot soni</label>
+                    <input type="number" id="order-quantity"
+                        placeholder="Mahsulot soni" min="1" required>
+
+                    <div class="modal-actions">
+                        <button type="button" class="cancel-btn"
+                            onclick="closeOrderModal()">Bekor qilish</button>
+                        <button type="submit" class="add-btn">Buyurtma berish</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `);
+}
+
+function saveNewOrder(event) {
+    event.preventDefault();
+
+    const customer = document.getElementById("order-customer").value.trim();
+    const productId = Number(document.getElementById("order-product").value);
+    const quantity = Number(document.getElementById("order-quantity").value);
+
+    const selectedProduct = products.find(product => product.id === productId);
+
+    if (!customer || !selectedProduct) {
+        alert("Ma’lumotlarni to‘g‘ri kiriting!");
+        return;
+    }
+
     if (!Number.isInteger(quantity) || quantity < 1) {
         alert("Mahsulot soni noto‘g‘ri!");
         return;
     }
 
-    const price = Number(prompt("Bir dona mahsulot narxini kiriting:"));
-    if (!Number.isFinite(price) || price < 1) {
-        alert("Narx noto‘g‘ri!");
+    if (quantity > selectedProduct.quantity) {
+        alert("Omborda buncha mahsulot yo‘q!");
         return;
     }
 
     orders.push({
         id: Date.now(),
         customer,
-        product,
+        product: selectedProduct.name,
+        productId: selectedProduct.id,
         quantity,
-        price,
+        price: selectedProduct.price,
         status: "Kutilmoqda"
     });
 
+    saveOrders();
     renderOrders();
+
     alert("Buyurtma muvaffaqiyatli qo‘shildi!");
+}
+
+function closeOrderModal() {
+    document.getElementById("order-modal")?.remove();
+}
+
+function changeOrderStatus(id) {
+    const order = orders.find(item => item.id === id);
+    if (!order) return;
+
+    if (order.status === "Bajarildi") {
+        alert("Bu buyurtma allaqachon bajarilgan!");
+        return;
+    }
+
+    const product = products.find(item => item.id === order.productId);
+
+    if (!product) {
+        alert("Mahsulot topilmadi!");
+        return;
+    }
+
+    if (product.quantity < order.quantity) {
+        alert("Omborda mahsulot yetarli emas!");
+        return;
+    }
+
+    if (!confirm("Buyurtmani bajarilgan deb belgilaysizmi?")) return;
+
+    product.quantity -= order.quantity;
+    order.status = "Bajarildi";
+
+    saveProducts();
+    saveOrders();
+
+    renderOrders();
+
+    alert("Buyurtma bajarildi! Ombordagi mahsulot soni yangilandi.");
 }

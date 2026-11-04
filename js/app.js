@@ -1,4 +1,3 @@
-
 function navigate(page) {
     const title = document.getElementById("page-title");
 
